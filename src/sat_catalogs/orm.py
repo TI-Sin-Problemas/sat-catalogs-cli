@@ -1,8 +1,9 @@
 """Database interactions"""
 
-from sqlalchemy import Table
+from sqlalchemy import Table, select
 from sqlalchemy.engine import Engine, create_engine
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Session
 
 Base = declarative_base()
 
@@ -45,3 +46,21 @@ def get_model(model: str, engine: Engine):
         __table__ = Table(table_name, Base.metadata, autoload_with=engine)
 
     return Model
+
+
+def get_record_scalars(model: str, db_path: str):
+    """Connect to database and retrieve results as scalars
+
+    Args:
+        model (str): Model name of the object to retrieve
+        db_path (str): Path to SQLite database
+
+    Returns:
+        ScalarResult: All table record objects
+    """
+
+    engine = get_db_engine(db_path)
+    session = Session(engine)
+    model_class = get_model(model, engine)
+    results = select(model_class)
+    return session.scalars(results)
