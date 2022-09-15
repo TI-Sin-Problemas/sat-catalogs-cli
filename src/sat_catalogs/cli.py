@@ -1,5 +1,7 @@
 """Main entry point"""
 import os
+import sqlite3
+from shutil import rmtree
 from tempfile import NamedTemporaryFile
 from zipfile import ZipFile
 
@@ -77,11 +79,32 @@ def download_database():
         temp_file.write(request.content)
 
         with ZipFile(temp_file.name, "r") as zip_file:
-
+            database_dir = "resources-sat-catalogs-master/database/"
+            tmp_dir = "tmp/"
             members = [
-                name
-                for name in zip_file.namelist()
-                if name.startswith("resources-sat-catalogs-master/database/")
+                name for name in zip_file.namelist() if name.startswith(database_dir)
             ]
             click.echo("Extracting files...")
-            zip_file.extractall("tmp/", members)
+            zip_file.extractall(tmp_dir, members)
+
+    schemas_dir = tmp_dir + database_dir + "schemas/"
+    data_dir = tmp_dir + database_dir + "data/"
+
+    click.echo("Building database...")
+    connection = sqlite3.connect("catalogs.db")
+    cursor = connection.cursor()
+
+    sql_script = ""
+    for file in os.listdir(schemas_dir):
+        with open(schemas_dir + file, encoding="utf-8") as script:
+            sql_script += script.read()
+
+    for file in os.listdir(data_dir):
+        with open(data_dir + file, encoding="utf-8") as script:
+            sql_script += script.read()
+
+    cursor.executescript(sql_script)
+    connection.close()
+    click.echo("Removing temporary files...")
+    rmtree(tmp_dir)
+    click.echo("Done!")
