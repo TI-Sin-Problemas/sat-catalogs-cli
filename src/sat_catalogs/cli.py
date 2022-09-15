@@ -66,14 +66,30 @@ def export(context: click.Context, database: str, model: str, output: str):
 
 
 @cli.command()
-def download_database():
-    """Download latest SAT's catalogs database"""
+@click.option(
+    "-n",
+    "--name",
+    "db_path",
+    type=click.Path(dir_okay=False, writable=True, resolve_path=True),
+    default="catalogs.db",
+    show_default=True,
+    help="Name or path to build the database",
+)
+@click.option(
+    "-o",
+    "--overwrite",
+    "overwrite",
+    is_flag=True,
+    default=False,
+    show_default=True,
+    help="Allow overwriting database file",
+)
+def build_database(db_path: str, overwrite: bool):
+    """Download and build latest SAT's catalogs database"""
 
     click.echo("Downloading repository...")
-    request = get(
-        "https://github.com/phpcfdi/resources-sat-catalogs/archive/master.zip",
-        timeout=60,
-    )
+    url = "https://github.com/phpcfdi/resources-sat-catalogs/archive/master.zip"
+    request = get(url, timeout=60)
 
     with NamedTemporaryFile() as temp_file:
         temp_file.write(request.content)
@@ -81,9 +97,8 @@ def download_database():
         with ZipFile(temp_file.name, "r") as zip_file:
             database_dir = "resources-sat-catalogs-master/database/"
             tmp_dir = "tmp/"
-            members = [
-                name for name in zip_file.namelist() if name.startswith(database_dir)
-            ]
+            namelist = zip_file.namelist()
+            members = [name for name in namelist if name.startswith(database_dir)]
             click.echo("Extracting files...")
             zip_file.extractall(tmp_dir, members)
 
@@ -91,7 +106,10 @@ def download_database():
     data_dir = tmp_dir + database_dir + "data/"
 
     click.echo("Building database...")
-    connection = sqlite3.connect("catalogs.db")
+    if overwrite and os.path.exists(db_path):
+        os.unlink(db_path)
+
+    connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
 
     sql_script = ""
