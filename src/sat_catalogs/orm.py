@@ -33,7 +33,10 @@ def get_model(model: str, engine: Engine):
     Returns:
         Model: Model instance binded to database table
     """
-    model_dict = {"unitofmeasure": "cfdi_40_claves_unidades"}
+    model_dict = {
+        "payment_form": "cfdi_40_formas_pago",
+        "unit_of_measure": "cfdi_40_claves_unidades",
+    }
 
     try:
         table_name = model_dict[model.lower()]
