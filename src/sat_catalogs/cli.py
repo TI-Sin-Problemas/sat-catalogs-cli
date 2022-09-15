@@ -9,6 +9,7 @@ import click
 from requests import get
 
 from .functions import dolibarr as dolibarr_functions
+from . import files
 
 
 @click.group()
@@ -87,7 +88,7 @@ def export(context: click.Context, database: str, model: str, output: str):
 def build_database(db_path: str, overwrite: bool):
     """Download and build latest SAT's catalogs database"""
 
-    click.echo("Downloading repository...")
+    click.echo("⇩ Downloading repository...")
     url = "https://github.com/phpcfdi/resources-sat-catalogs/archive/master.zip"
     request = get(url, timeout=60)
 
@@ -99,30 +100,21 @@ def build_database(db_path: str, overwrite: bool):
             tmp_dir = "tmp/"
             namelist = zip_file.namelist()
             members = [name for name in namelist if name.startswith(database_dir)]
-            click.echo("Extracting files...")
+            click.echo("📦 Extracting files...")
             zip_file.extractall(tmp_dir, members)
 
-    schemas_dir = tmp_dir + database_dir + "schemas/"
-    data_dir = tmp_dir + database_dir + "data/"
-
-    click.echo("Building database...")
+    click.echo("🏗️ Building database...")
     if overwrite and os.path.exists(db_path):
         os.unlink(db_path)
 
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
 
-    sql_script = ""
-    for file in os.listdir(schemas_dir):
-        with open(schemas_dir + file, encoding="utf-8") as script:
-            sql_script += script.read()
-
-    for file in os.listdir(data_dir):
-        with open(data_dir + file, encoding="utf-8") as script:
-            sql_script += script.read()
+    sql_script = files.cat_files(tmp_dir + database_dir + "schemas/")
+    sql_script += files.cat_files(tmp_dir + database_dir + "data/")
 
     cursor.executescript(sql_script)
     connection.close()
-    click.echo("Removing temporary files...")
+    click.echo("🆑 Removing temporary files...")
     rmtree(tmp_dir)
-    click.echo("Done!")
+    click.echo("✅ Done!")
