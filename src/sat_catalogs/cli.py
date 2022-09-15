@@ -1,6 +1,8 @@
 """Main entry point"""
 import os
 import click
+from requests import get
+
 from .functions import dolibarr as dolibarr_functions
 
 
@@ -56,3 +58,14 @@ def export(context: click.Context, database: str, model: str, output: str):
             file.write(sql)
     else:
         click.echo(f"response: {sql}")
+
+
+@cli.command()
+def download_database():
+    """Download latest SAT's catalogs database"""
+
+    click.echo("Downloading repository...")
+    request = get(
+        "https://github.com/phpcfdi/resources-sat-catalogs/archive/master.zip",
+        timeout=60,
+    )
