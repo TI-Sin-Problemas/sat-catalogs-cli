@@ -17,7 +17,7 @@ def get_db_engine(db_path: str) -> Engine:
     Returns:
         Engine: Connection to database
     """
-    return create_engine(f"sqlite:///{db_path}", echo=True, future=True)
+    return create_engine(f"sqlite:///{db_path}", echo=False, future=True)
 
 
 def get_model(model: str, engine: Engine):
