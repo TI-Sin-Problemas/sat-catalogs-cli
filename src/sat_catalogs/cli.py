@@ -1,5 +1,8 @@
 """Main entry point"""
 import os
+from tempfile import NamedTemporaryFile
+from zipfile import ZipFile
+
 import click
 from requests import get
 
@@ -69,3 +72,16 @@ def download_database():
         "https://github.com/phpcfdi/resources-sat-catalogs/archive/master.zip",
         timeout=60,
     )
+
+    with NamedTemporaryFile() as temp_file:
+        temp_file.write(request.content)
+
+        with ZipFile(temp_file.name, "r") as zip_file:
+
+            members = [
+                name
+                for name in zip_file.namelist()
+                if name.startswith("resources-sat-catalogs-master/database/")
+            ]
+            click.echo("Extracting files...")
+            zip_file.extractall("tmp/", members)
