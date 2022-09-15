@@ -31,8 +31,15 @@ def dolibarr():
     type=click.Choice(["payment_form", "unit_of_measure"], case_sensitive=False),
     help="Database object model to export",
 )
+@click.option(
+    "-o",
+    "--output",
+    "output",
+    type=click.Path(dir_okay=False, writable=True, resolve_path=True),
+    help="Output file",
+)
 @click.pass_context
-def export(context: click.Context, database: str, model: str):
+def export(context: click.Context, database: str, model: str, output: str):
     """Exports SQL script for Dolibarr modules
 
     DATABASE: SQLite database file.
@@ -42,6 +49,10 @@ def export(context: click.Context, database: str, model: str):
         "unit_of_measure": dolibarr_functions.get_units_of_measure_sql,
     }
     function = model_switch[model.lower()]
-    response = function(database, context.obj["templates_path"])
-    dolibarr_functions.get_units_of_measure_sql(database, context.obj["templates_path"])
-    click.echo(f"response: {response}")
+    sql = function(database, context.obj["templates_path"])
+
+    if output:
+        with open(output, "w", encoding="utf-8") as file:
+            file.write(sql)
+    else:
+        click.echo(f"response: {sql}")
