@@ -27,6 +27,15 @@ def get_units_of_measure_sql(db_path: str, templates_path: str) -> str:
 
 
 def get_payment_forms_sql(db_path: str, templates_path: str) -> str:
+    """Returns the payment forms SQL script as string
+
+    Args:
+        db_path (str): Path to the SQLite database file
+        templates_path (str): Path to the scripts template directory
+
+    Returns:
+        str: SQL script
+    """
     records = get_record_scalars("payment_form", db_path)
 
     values = []
