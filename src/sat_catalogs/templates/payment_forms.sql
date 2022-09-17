@@ -15,6 +15,6 @@
 
 
 -- SAT's cfdi_40_formas_pago catalog
-INSERT INTO llx_facturapiintegration_payment_forms (rowid, code, name, active)
+INSERT INTO llx_facturapiintegration_forms_of_payment (rowid, code, name, active)
 VALUES
 __values__
