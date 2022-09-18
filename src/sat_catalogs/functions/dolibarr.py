@@ -1,5 +1,30 @@
 """Dolibarr scripts generator functions"""
-from sat_catalogs.orm import get_record_scalars
+from typing import Callable
+
+from sat_catalogs.orm import SatModel, get_record_scalars
+
+
+def get_dolibarr_function(model: SatModel) -> Callable:
+    """Returns the function to call to get the SQL script for a model
+
+    Args:
+        model (SatModel): Model of the SQL script
+
+    Raises:
+        AttributeError: Invalid model
+
+    Returns:
+        Callable: Function to call
+    """
+    match model.name:
+        case SatModel.FORM_OF_PAYMENT.name:
+            return get_payment_forms_sql
+
+        case SatModel.UNIT_OF_MEASURE.name:
+            return get_units_of_measure_sql
+
+        case _:
+            raise AttributeError("Invalid model")
 
 
 def get_units_of_measure_sql(db_path: str, templates_path: str) -> str:
@@ -12,7 +37,7 @@ def get_units_of_measure_sql(db_path: str, templates_path: str) -> str:
     Returns:
         str: SQL script
     """
-    records = get_record_scalars("unit_of_measure", db_path)
+    records = get_record_scalars(SatModel.UNIT_OF_MEASURE, db_path)
 
     values = []
     for rowid, record in enumerate(records, 1):
@@ -36,7 +61,7 @@ def get_payment_forms_sql(db_path: str, templates_path: str) -> str:
     Returns:
         str: SQL script
     """
-    records = get_record_scalars("payment_form", db_path)
+    records = get_record_scalars(SatModel.FORM_OF_PAYMENT, db_path)
 
     values = []
     for rowid, record in enumerate(records, 1):

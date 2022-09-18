@@ -8,8 +8,9 @@ from zipfile import ZipFile
 import click
 from requests import get
 
-from .functions import dolibarr as dolibarr_functions
 from . import files
+from .functions.dolibarr import get_dolibarr_function
+from .orm import SatModel
 
 
 @click.group()
@@ -36,7 +37,7 @@ def dolibarr():
     "--model",
     "model",
     required=True,
-    type=click.Choice(["payment_form", "unit_of_measure"], case_sensitive=False),
+    type=click.Choice([model.name for model in SatModel], case_sensitive=False),
     help="Database object model to export",
 )
 @click.option(
@@ -52,12 +53,10 @@ def export(context: click.Context, database: str, model: str, output: str):
 
     DATABASE: SQLite database file.
     """
-    model_switch = {
-        "payment_form": dolibarr_functions.get_payment_forms_sql,
-        "unit_of_measure": dolibarr_functions.get_units_of_measure_sql,
-    }
-    function = model_switch[model.lower()]
-    sql = function(database, context.obj["templates_path"])
+    dolibarr_function = get_dolibarr_function(SatModel[model])
+    sql = dolibarr_function(  # pylint: disable=not-callable
+        database, context.obj["templates_path"]
+    )
 
     if output:
         with open(output, "w", encoding="utf-8") as file:
