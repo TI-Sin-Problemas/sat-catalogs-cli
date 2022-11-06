@@ -3,12 +3,7 @@ from typing import Callable
 
 from sat_catalogs.orm import SatModel, get_record_scalars
 
-
-def __get_sql(template_path: str, values: str) -> str:
-
-    with open(f"{template_path}", "r", encoding="utf-8") as file:
-        template = file.read()
-    return template.replace("__values__", ",\n".join(values) + ";")
+from .scripts import get_sql
 
 
 def get_dolibarr_function(model: SatModel) -> Callable:
@@ -55,7 +50,7 @@ def get_units_of_measure_sql(db_path: str, templates_path: str) -> str:
         description = record.descripcion.replace("'", '"').replace(";", ",")
         values.append(f"    ({rowid}, '{record.id}', '{name}', '{description}', 0)")
 
-    return __get_sql(f"{templates_path}/units_of_measure.sql", values)
+    return get_sql(f"{templates_path}/dolibarr/units_of_measure.sql", values)
 
 
 def get_payment_forms_sql(db_path: str, templates_path: str) -> str:
@@ -75,7 +70,7 @@ def get_payment_forms_sql(db_path: str, templates_path: str) -> str:
         name = record.texto.replace("'", '"')
         values.append(f"    ({rowid}, '{record.id}', '{name}', 0)")
 
-    return __get_sql(f"{templates_path}/payment_forms.sql", values)
+    return get_sql(f"{templates_path}/dolibarr/payment_forms.sql", values)
 
 
 def get_tax_systems_sql(db_path: str, templates_path: str) -> str:
@@ -95,4 +90,4 @@ def get_tax_systems_sql(db_path: str, templates_path: str) -> str:
         name = record.texto.replace("'", '"')
         values.append(f"    ({rowid}, '{record.id}', '{name}', 1)")
 
-    return __get_sql(f"{templates_path}/tax_systems.sql", values)
+    return get_sql(f"{templates_path}/dolibarr/tax_systems.sql", values)

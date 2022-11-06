@@ -10,6 +10,7 @@ from requests import get
 
 from . import files
 from .functions.dolibarr import get_dolibarr_function
+from .functions.odoo import get_odoo_function
 from .orm import SatModel
 
 
@@ -23,15 +24,11 @@ def cli(context: click.Context):
     }
 
 
-@cli.group()
-def dolibarr():
-    """Manages Dolibar SQL scripts"""
-
-
-@dolibarr.command()
+@cli.command()
 @click.argument(
     "database", type=click.Path(exists=True, readable=True, resolve_path=True)
 )
+@click.argument("system", type=click.Choice(["dolibarr", "odoo"]))
 @click.option(
     "-m",
     "--model",
@@ -48,12 +45,14 @@ def dolibarr():
     help="Output file",
 )
 @click.pass_context
-def export(context: click.Context, database: str, model: str, output: str):
-    """Exports SQL script for Dolibarr modules
+def export(context: click.Context, database: str, system: str, model: str, output: str):
+    """Exports data script for ERP modules
 
-    DATABASE: SQLite database file.
+    DATABASE: SQLite database file.\n
+    SYSTEM: ERP System where script is going to be used
     """
-    dolibarr_function = get_dolibarr_function(SatModel[model])
+    functions_map = {"dolibarr": get_dolibarr_function, "odoo": get_odoo_function}
+    dolibarr_function = functions_map[system](SatModel[model])
     sql = dolibarr_function(  # pylint: disable=not-callable
         database, context.obj["templates_path"]
     )
