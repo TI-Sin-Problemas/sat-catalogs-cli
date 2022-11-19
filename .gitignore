@@ -170,3 +170,6 @@ cython_debug/
 
 # Databases
 *.db
+
+# Jupyter Notebooks
+*.ipynb

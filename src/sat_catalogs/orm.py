@@ -15,6 +15,7 @@ class SatModel(Enum):
     FORM_OF_PAYMENT = "cfdi_40_formas_pago"
     UNIT_OF_MEASURE = "cfdi_40_claves_unidades"
     TAX_SYSTEM = "cfdi_40_regimenes_fiscales"
+    PROD_SERV_KEY = "cfdi_40_productos_servicios"
 
 
 def get_db_engine(db_path: str) -> Engine:

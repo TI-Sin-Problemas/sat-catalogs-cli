@@ -18,12 +18,15 @@ def get_odoo_function(model: SatModel) -> Callable:
     Returns:
         Callable: Function to call
     """
-    match model.name:
-        case SatModel.TAX_SYSTEM.name:
-            return get_tax_systems_csv
+    try:
+        function_map = {
+            SatModel.TAX_SYSTEM.name: get_tax_systems_csv,
+            SatModel.PROD_SERV_KEY.name: get_product_service_keys_csv,
+        }
 
-        case _:
-            raise AttributeError("Invalid model")
+        return function_map[model.name]
+    except KeyError as err:
+        raise AttributeError("Invalid model") from err
 
 
 def get_tax_systems_csv(db_path: str, templates_path: str) -> str:
@@ -43,3 +46,22 @@ def get_tax_systems_csv(db_path: str, templates_path: str) -> str:
         values.append(f'tax_system_{rowid:02d},{record.id},"{record.texto}"')
 
     return get_csv(f"{templates_path}/odoo/tax_systems.csv", values)
+
+
+def get_product_service_keys_csv(db_path: str, templates_path: str) -> str:
+    """Returns the product/service keys CSV as string
+
+    Args:
+        db_path (str): Path tho the SQLite database file
+        templates_path (str): Path to the template directory
+
+    Returns:
+        str: CSV string
+    """
+
+    records = get_record_scalars(SatModel.PROD_SERV_KEY, db_path)
+
+    values = []
+    for rowid, record in enumerate(records, 1):
+        values.append(f'prod_serv_key_{rowid:05d},{record.id},"{record.texto}"')
+    return get_csv(f"{templates_path}/odoo/product_service_keys.csv", values)
