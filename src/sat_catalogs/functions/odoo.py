@@ -18,13 +18,14 @@ def get_odoo_function(model: SatModel) -> Callable:
     Returns:
         Callable: Function to call
     """
-    try:
-        function_map = {
-            SatModel.TAX_SYSTEM.name: get_tax_systems_csv,
-            SatModel.PROD_SERV_KEY.name: get_product_service_keys_csv,
-            SatModel.UNIT_OF_MEASURE.name: get_units_of_measure_csv,
-        }
+    function_map = {
+        SatModel.FORM_OF_PAYMENT.name: get_payment_forms_csv,
+        SatModel.TAX_SYSTEM.name: get_tax_systems_csv,
+        SatModel.PROD_SERV_KEY.name: get_product_service_keys_csv,
+        SatModel.UNIT_OF_MEASURE.name: get_units_of_measure_csv,
+    }
 
+    try:
         return function_map[model.name]
     except KeyError as err:
         raise AttributeError("Invalid model") from err
@@ -47,6 +48,25 @@ def get_units_of_measure_csv(db_path: str, templates_path: str) -> str:
         values.append(f'unit_of_measure_{rowid:04d},{record.id},"{record.texto}"')
 
     return get_csv(f"{templates_path}/odoo/units_of_measure.csv", values)
+
+
+def get_payment_forms_csv(db_path: str, templates_path: str) -> str:
+    """Returns the payment forms CSV as string
+
+    Args:
+        db_path (str): Path to the SQLite database file
+        templates_path (str): Path tho the template directory
+
+    Returns:
+        str: CSV string
+    """
+    records = get_record_scalars(SatModel.FORM_OF_PAYMENT, db_path)
+
+    values = []
+    for rowid, record in enumerate(records, 1):
+        values.append(f'payment_form_{rowid:02d},{record.id},"{record.texto}"')
+
+    return get_csv(f"{templates_path}/odoo/payment_forms.csv", values)
 
 
 def get_tax_systems_csv(db_path: str, templates_path: str) -> str:
