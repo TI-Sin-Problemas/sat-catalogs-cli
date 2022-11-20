@@ -18,21 +18,17 @@ def get_dolibarr_function(model: SatModel) -> Callable:
     Returns:
         Callable: Function to call
     """
-    match model.name:
-        case SatModel.FORM_OF_PAYMENT.name:
-            return get_payment_forms_sql
-
-        case SatModel.UNIT_OF_MEASURE.name:
-            return get_units_of_measure_sql
-
-        case SatModel.TAX_SYSTEM.name:
-            return get_tax_systems_sql
-
-        case SatModel.PROD_SERV_KEY.name:
-            return get_product_service_keys_sql
-
-        case _:
-            raise AttributeError("Invalid model")
+    function_map = {
+        SatModel.CFDI_USE.name: get_cfdi_uses_sql,
+        SatModel.FORM_OF_PAYMENT.name: get_payment_forms_sql,
+        SatModel.TAX_SYSTEM.name: get_tax_systems_sql,
+        SatModel.PROD_SERV_KEY.name: get_product_service_keys_sql,
+        SatModel.UNIT_OF_MEASURE.name: get_units_of_measure_sql,
+    }
+    try:
+        return function_map[model.name]
+    except KeyError as err:
+        raise AttributeError("Invalid model") from err
 
 
 def get_units_of_measure_sql(db_path: str, templates_path: str) -> str:
@@ -114,3 +110,23 @@ def get_product_service_keys_sql(db_path: str, templates_path: str) -> str:
         values.append(f"   ({rowid}, '{record.id}', '{name}', 0)")
 
     return get_sql(f"{templates_path}/dolibarr/product_service_keys.sql", values)
+
+
+def get_cfdi_uses_sql(db_path: str, templates_path: str) -> str:
+    """Returns the products and services keys SQL script as string
+
+    Args:
+        db_path (str): Path to the SQLite database file
+        templates_path (str): Path th the scripts template directory
+
+    Returns:
+        str: SQL script
+    """
+    records = get_record_scalars(SatModel.CFDI_USE, db_path)
+
+    values = []
+    for rowid, record in enumerate(records, 1):
+        name = record.texto.replace("'", '"')
+        values.append(f"   ({rowid}, '{record.id}', '{name}', 0)")
+
+    return get_sql(f"{templates_path}/dolibarr/cfdi_uses.sql", values)

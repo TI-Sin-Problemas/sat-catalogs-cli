@@ -23,6 +23,7 @@ def get_odoo_function(model: SatModel) -> Callable:
         SatModel.TAX_SYSTEM.name: get_tax_systems_csv,
         SatModel.PROD_SERV_KEY.name: get_product_service_keys_csv,
         SatModel.UNIT_OF_MEASURE.name: get_units_of_measure_csv,
+        SatModel.CFDI_USE.name: get_cfdi_uses_csv,
     }
 
     try:
@@ -92,7 +93,7 @@ def get_product_service_keys_csv(db_path: str, templates_path: str) -> str:
     """Returns the product/service keys CSV as string
 
     Args:
-        db_path (str): Path tho the SQLite database file
+        db_path (str): Path to the SQLite database file
         templates_path (str): Path to the template directory
 
     Returns:
@@ -105,3 +106,21 @@ def get_product_service_keys_csv(db_path: str, templates_path: str) -> str:
     for rowid, record in enumerate(records, 1):
         values.append(f'prod_serv_key_{rowid:05d},{record.id},"{record.texto}"')
     return get_csv(f"{templates_path}/odoo/product_service_keys.csv", values)
+
+
+def get_cfdi_uses_csv(db_path: str, templates_path: str) -> str:
+    """Returns the CFDI use CSV as string
+
+    Args:
+        db_path (str): Path to the SQLite database
+        templates_path (str): Path to the template directory
+
+    Returns:
+        str: CSV string
+    """
+    records = get_record_scalars(SatModel.CFDI_USE, db_path)
+
+    values = []
+    for rowid, record in enumerate(records, 1):
+        values.append(f'cfdi_use_{rowid:02d},{record.id},"{record.texto}"')
+    return get_csv(f"{templates_path}/odoo/cfdi_uses.csv", values)
