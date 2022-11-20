@@ -28,6 +28,9 @@ def get_dolibarr_function(model: SatModel) -> Callable:
         case SatModel.TAX_SYSTEM.name:
             return get_tax_systems_sql
 
+        case SatModel.PROD_SERV_KEY.name:
+            return get_product_service_keys_sql
+
         case _:
             raise AttributeError("Invalid model")
 
@@ -91,3 +94,23 @@ def get_tax_systems_sql(db_path: str, templates_path: str) -> str:
         values.append(f"    ({rowid}, '{record.id}', '{name}', 1)")
 
     return get_sql(f"{templates_path}/dolibarr/tax_systems.sql", values)
+
+
+def get_product_service_keys_sql(db_path: str, templates_path: str) -> str:
+    """Returns the products and services keys SQL script as string
+
+    Args:
+        db_path (str): Path to the SQLite database file
+        templates_path (str): Path to the scripts template directory
+
+    Returns:
+        str: SQL script
+    """
+    records = get_record_scalars(SatModel.PROD_SERV_KEY, db_path)
+
+    values = []
+    for rowid, record in enumerate(records, 1):
+        name = record.texto.replace("'", '"')
+        values.append(f"   ({rowid}, '{record.id}', '{name}', 0)")
+
+    return get_sql(f"{templates_path}/dolibarr/product_service_keys.sql", values)
