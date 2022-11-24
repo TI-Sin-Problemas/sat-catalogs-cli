@@ -24,6 +24,7 @@ def get_odoo_function(model: SatModel) -> Callable:
         SatModel.PROD_SERV_KEY.name: get_product_service_keys_csv,
         SatModel.UNIT_OF_MEASURE.name: get_units_of_measure_csv,
         SatModel.CFDI_USE.name: get_cfdi_uses_csv,
+        SatModel.RELATIONSHIP_TYPE.name: get_cfdi_relationships_csv,
     }
 
     try:
@@ -124,3 +125,21 @@ def get_cfdi_uses_csv(db_path: str, templates_path: str) -> str:
     for rowid, record in enumerate(records, 1):
         values.append(f'cfdi_use_{rowid:02d},{record.id},"{record.texto}"')
     return get_csv(f"{templates_path}/odoo/cfdi_uses.csv", values)
+
+
+def get_cfdi_relationships_csv(db_path: str, templates_path: str) -> str:
+    """Returns the CFDI relationship types CSV as string
+
+    Args:
+        db_path (str): Path to the SQLite database
+        templates_path (str): Path to the template directory
+
+    Returns:
+        str: CSV string
+    """
+    records = get_record_scalars(SatModel.RELATIONSHIP_TYPE, db_path)
+
+    values = []
+    for rowid, record in enumerate(records, 1):
+        values.append(f'relationship_type_{rowid:02d},{record.id},"{record.texto}"')
+    return get_csv(f"{templates_path}/odoo/relationship_types.csv", values)

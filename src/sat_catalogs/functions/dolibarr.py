@@ -24,6 +24,7 @@ def get_dolibarr_function(model: SatModel) -> Callable:
         SatModel.TAX_SYSTEM.name: get_tax_systems_sql,
         SatModel.PROD_SERV_KEY.name: get_product_service_keys_sql,
         SatModel.UNIT_OF_MEASURE.name: get_units_of_measure_sql,
+        SatModel.RELATIONSHIP_TYPE.name: get_cfdi_relationships_sql,
     }
     try:
         return function_map[model.name]
@@ -127,6 +128,25 @@ def get_cfdi_uses_sql(db_path: str, templates_path: str) -> str:
     values = []
     for rowid, record in enumerate(records, 1):
         name = record.texto.replace("'", '"')
-        values.append(f"   ({rowid}, '{record.id}', '{name}', 0)")
+        values.append(f"   ({rowid}, '{record.id}', '{name}', 1)")
 
     return get_sql(f"{templates_path}/dolibarr/cfdi_uses.sql", values)
+
+
+def get_cfdi_relationships_sql(db_path: str, templates_path: str) -> str:
+    """Returns the CFDI relationship types SQL script as string
+
+    Args:
+        db_path (str): Path to the SQLite database
+        templates_path (str): Path to the template directory
+
+    Returns:
+        str: SQL script
+    """
+    records = get_record_scalars(SatModel.RELATIONSHIP_TYPE, db_path)
+
+    values = []
+    for rowid, record in enumerate(records, 1):
+        name = record.texto.replace("'", '"')
+        values.append(f"   ({rowid}, '{record.id}', '{name}', 1)")
+    return get_sql(f"{templates_path}/dolibarr/relationship_types.sql", values)

@@ -17,6 +17,7 @@ class SatModel(Enum):
     TAX_SYSTEM = "cfdi_40_regimenes_fiscales"
     PROD_SERV_KEY = "cfdi_40_productos_servicios"
     CFDI_USE = "cfdi_40_usos_cfdi"
+    RELATIONSHIP_TYPE = "cfdi_40_tipos_relaciones"
 
 
 def get_db_engine(db_path: str) -> Engine:
