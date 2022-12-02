@@ -102,10 +102,10 @@ def get_product_service_keys_csv(db_path: str, templates_path: str) -> str:
     """
 
     records = get_record_scalars(SatModel.PROD_SERV_KEY, db_path)
-
+    print(records)
     values = []
     for rowid, record in enumerate(records, 1):
-        values.append(f'prod_serv_key_{rowid:05d},{record.id},"{record.texto}"')
+        values.append(f'prod_serv_key_{rowid:05d},"{record.id}","{record.texto}"')
     return get_csv(f"{templates_path}/odoo/product_service_keys.csv", values)
 
 
