@@ -1,5 +1,6 @@
 """Dolibarr scripts generator functions"""
 from typing import Callable
+from click.exceptions import BadParameter
 
 from sat_catalogs.orm import SatModel, get_record_scalars
 
@@ -29,7 +30,7 @@ def get_dolibarr_function(model: SatModel) -> Callable:
     try:
         return function_map[model.name]
     except KeyError as err:
-        raise AttributeError("Invalid model") from err
+        raise BadParameter("Invalid model") from err
 
 
 def get_units_of_measure_sql(db_path: str, templates_path: str) -> str:
