@@ -2,7 +2,7 @@
 
 from enum import Enum
 from sqlalchemy import Table, select
-from sqlalchemy.engine import Engine, create_engine
+from sqlalchemy.engine import Engine, create_engine, ScalarResult
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
 
@@ -54,7 +54,7 @@ def get_model(model: SatModel, engine: Engine):
     return Model
 
 
-def get_record_scalars(model: SatModel, db_path: str):
+def get_record_scalars(model: SatModel, db_path: str) -> ScalarResult:
     """Connect to database and retrieve results as scalars
 
     Args:
@@ -68,5 +68,5 @@ def get_record_scalars(model: SatModel, db_path: str):
     engine = get_db_engine(db_path)
     session = Session(engine)
     model_class = get_model(model, engine)
-    results = select(model_class)
-    return session.scalars(results)
+    query = select(model_class)
+    return session.scalars(query)
