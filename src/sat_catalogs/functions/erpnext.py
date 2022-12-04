@@ -48,7 +48,8 @@ def get_uom_keys(db_path: str, *args) -> str:
             "doctype": "SAT UOM Key",
             "enabled": 1,
             "key": record.id,
-            "name": f"{record.id} - {record.texto}",
+            "key_name": f"{record.id} - {record.texto}",
+            "name": record.id,
             "uom_name": record.texto,
         }
         for record in records
@@ -73,7 +74,8 @@ def get_ways_to_pay(db_path: str, *args) -> str:
             "doctype": "SAT Way To Pay",
             "enabled": 1,
             "key": record.id,
-            "name": record.texto,
+            "key_name": f"{record.id} - {record.texto}",
+            "name": record.id,
         }
         for record in records
     ]
@@ -96,7 +98,8 @@ def get_product_service_keys(db_path: str, *args) -> str:
             "doctype": "SAT Product or Service Key",
             "enabled": 1,
             "key": record.id,
-            "name": f"{record.id} - {record.texto}"[:140],
+            "key_name": f"{record.id} - {record.texto}"[:140],
+            "name": record.id,
         }
         for record in records
     ]
