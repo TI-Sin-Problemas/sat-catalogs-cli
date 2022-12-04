@@ -21,6 +21,7 @@ def get_erpnext_function(model: SatModel) -> Callable:
     """
 
     function_map = {
+        SatModel.FORM_OF_PAYMENT.name: get_ways_to_pay,
         SatModel.PROD_SERV_KEY.name: get_product_service_keys,
         SatModel.UNIT_OF_MEASURE.name: get_uom_keys,
     }
@@ -53,6 +54,29 @@ def get_uom_keys(db_path: str, *args) -> str:
         for record in records
     ]
 
+    return scripts.get_json(values)
+
+
+def get_ways_to_pay(db_path: str, *args) -> str:
+    """Returns the ways to pay as a JSON string
+
+    Args:
+        db_path (str): Path to the SQLite database file
+
+    Returns:
+        str: JSON string
+    """
+    records = get_record_scalars(SatModel.FORM_OF_PAYMENT, db_path)
+    values = [
+        {
+            "description": record.texto,
+            "doctype": "SAT Way To Pay",
+            "enabled": 1,
+            "key": record.id,
+            "name": record.texto,
+        }
+        for record in records
+    ]
     return scripts.get_json(values)
 
 
