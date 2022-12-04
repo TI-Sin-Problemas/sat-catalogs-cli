@@ -11,6 +11,7 @@ from requests import get
 from . import files
 from .functions.dolibarr import get_dolibarr_function
 from .functions.odoo import get_odoo_function
+from .functions.erpnext import get_erpnext_function
 from .orm import SatModel
 
 
@@ -28,7 +29,7 @@ def cli(context: click.Context):
 @click.argument(
     "database", type=click.Path(exists=True, readable=True, resolve_path=True)
 )
-@click.argument("system", type=click.Choice(["dolibarr", "odoo"]))
+@click.argument("system", type=click.Choice(["dolibarr", "odoo", "erpnext"]))
 @click.option(
     "-m",
     "--model",
@@ -51,9 +52,13 @@ def export(context: click.Context, database: str, system: str, model: str, outpu
     DATABASE: SQLite database file.\n
     SYSTEM: ERP System where script is going to be used
     """
-    functions_map = {"dolibarr": get_dolibarr_function, "odoo": get_odoo_function}
-    dolibarr_function = functions_map[system](SatModel[model])
-    sql = dolibarr_function(  # pylint: disable=not-callable
+    functions_map = {
+        "dolibarr": get_dolibarr_function,
+        "odoo": get_odoo_function,
+        "erpnext": get_erpnext_function,
+    }
+    get_data_function = functions_map[system](SatModel[model])
+    sql = get_data_function(  # pylint: disable=not-callable
         database, context.obj["templates_path"]
     )
 
@@ -115,4 +120,4 @@ def build_database(db_path: str, overwrite: bool):
     connection.close()
     click.echo("🆑 Removing temporary files...")
     rmtree(tmp_dir)
-    click.echo("✅ Done!")
+    click.echo("✔ Done!")
