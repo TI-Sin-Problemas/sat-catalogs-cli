@@ -144,7 +144,7 @@ def get_cfdi_uses(db_path: str, *args) -> str:
     Returns:
         str: JSON string
     """
-    recods = get_record_scalars(SatModel.TAX_SYSTEM, db_path)
+    recods = get_record_scalars(SatModel.CFDI_USE, db_path)
     values = [
         {
             "description": record.texto,
