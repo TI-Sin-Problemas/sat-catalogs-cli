@@ -26,6 +26,7 @@ def get_erpnext_function(model: SatModel) -> Callable:
         SatModel.PROD_SERV_KEY.name: get_product_service_keys,
         SatModel.UNIT_OF_MEASURE.name: get_uom_keys,
         SatModel.CFDI_USE.name: get_cfdi_uses,
+        SatModel.RELATIONSHIP_TYPE.name: get_relationship_type,
     }
 
     try:
@@ -147,7 +148,32 @@ def get_cfdi_uses(db_path: str, *args) -> str:
     values = [
         {
             "description": record.texto,
-            "doctype": "SAT Tax System",
+            "doctype": "SAT CFDI Use",
+            "enabled": 1,
+            "key": record.id,
+            "key_name": f"{record.id} - {record.texto}"[:140],
+            "name": record.id,
+        }
+        for record in recods
+    ]
+
+    return scripts.get_json(values)
+
+
+def get_relationship_type(db_path: str, *args) -> str:
+    """Retruns the relationship types JSON string
+
+    Args:
+        db_path (str): Path to the SQLite database file
+
+    Returns:
+        str: JSON string
+    """
+    recods = get_record_scalars(SatModel.RELATIONSHIP_TYPE, db_path)
+    values = [
+        {
+            "description": record.texto,
+            "doctype": "SAT Relationship Type",
             "enabled": 1,
             "key": record.id,
             "key_name": f"{record.id} - {record.texto}"[:140],
