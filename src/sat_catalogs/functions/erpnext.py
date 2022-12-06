@@ -25,6 +25,7 @@ def get_erpnext_function(model: SatModel) -> Callable:
         SatModel.TAX_SYSTEM.name: get_tax_systems,
         SatModel.PROD_SERV_KEY.name: get_product_service_keys,
         SatModel.UNIT_OF_MEASURE.name: get_uom_keys,
+        SatModel.CFDI_USE.name: get_cfdi_uses,
     }
 
     try:
@@ -128,6 +129,31 @@ def get_tax_systems(db_path: str, *args) -> str:
             "name": record.id,
         }
         for record in records
+    ]
+
+    return scripts.get_json(values)
+
+
+def get_cfdi_uses(db_path: str, *args) -> str:
+    """Retruns the CFDI uses JSON string
+
+    Args:
+        db_path (str): Path to the SQLite database file
+
+    Returns:
+        str: JSON string
+    """
+    recods = get_record_scalars(SatModel.TAX_SYSTEM, db_path)
+    values = [
+        {
+            "description": record.texto,
+            "doctype": "SAT Tax System",
+            "enabled": 1,
+            "key": record.id,
+            "key_name": f"{record.id} - {record.texto}"[:140],
+            "name": record.id,
+        }
+        for record in recods
     ]
 
     return scripts.get_json(values)
